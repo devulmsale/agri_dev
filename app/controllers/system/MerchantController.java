@@ -17,7 +17,7 @@ import java.util.Map;
 
 @With(Secure.class)
 public class MerchantController extends Controller {
-    public static Integer PAGE_SIZE = 2;
+    public static Integer PAGE_SIZE = 15;
 
     public static void index(Integer pageNumber ,Merchant merchant , String searchName) {
         initData();
