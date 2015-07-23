@@ -21,7 +21,7 @@ end
 dir = "agri"
 
 unless Dir.exists?("#{package_dir}/#{dir}/.git")
-  puts "请在ylmsale目录运行，并确保已经建立git目录：#{package_dir}/#{dir}"
+  puts "请在agri目录运行，并确保已经建立git目录：#{package_dir}/#{dir}"
   exit(1)
 end
 
