@@ -6,8 +6,6 @@ import cache.CacheHelper;
 import models.mert.Merchant;
 import models.mert.MerchantUser;
 import models.operate.OperateUser;
-import models.operate.OperateUserLoginHistory;
-import models.operate.Operator;
 import org.apache.commons.lang.StringUtils;
 import play.Logger;
 import play.cache.Cache;
@@ -117,7 +115,7 @@ public class MerchantSecure extends Controller {
             if (url == null) {
                 url = AUTO_LOGIN_BACK_URL;
             }
-            Logger.debug("[Secure]: redirect to url -> " + url);
+            Logger.info("[Secure]: redirect to url -> " + url);
             redirect(url);
         }
     }
@@ -152,8 +150,8 @@ public class MerchantSecure extends Controller {
 
 
     private static boolean skipLoginCheck() {
-        if (getActionAnnotation(MerchantSkipLoginCheck.class) != null ||
-                getControllerInheritedAnnotation(MerchantSkipLoginCheck.class) != null) {
+        if (getActionAnnotation(SkipLoginCheck.class) != null ||
+                getControllerInheritedAnnotation(SkipLoginCheck.class) != null) {
             Logger.info("SkipLoginCheck=true");
             return true;
         }
