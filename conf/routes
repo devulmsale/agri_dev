@@ -18,6 +18,6 @@ GET   /merchants                                merchant.Application.index
 # SYSTEM 后台管理
 GET   /systems                                   system.Application.index
 GET   /system/login
-
+*   /system/merchant                           system.MerchantController.index
 # Catch all
 *       /{controller}/{action}                  {controller}.{action}
