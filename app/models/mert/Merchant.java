@@ -2,6 +2,8 @@ package models.mert;
 
 import cache.CacheCallBack;
 import cache.CacheHelper;
+import jodd.bean.BeanCopy;
+import models.constants.DeletedStatus;
 import models.mert.enums.MerchantStatus;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.Index;
@@ -105,7 +107,13 @@ public class Merchant extends Model {
      * 地址
      */
     @Column(name = "address")
-    public static String address; //地址
+    public String address; //地址
+
+    /**
+     * 逻辑删除,0:未删除，1:已删除
+     */
+    @Enumerated(EnumType.ORDINAL)
+    public DeletedStatus deleted;
 
     /**
      * 微信AppId
@@ -180,26 +188,19 @@ public class Merchant extends Model {
         CacheHelper.delete(CACHE_LINKID_KEY + this.linkId);
     }
 
-    public static void update(Long id, Merchant supplier) {
-        Merchant merchant = Merchant.findById(id);
-        if (merchant == null) {
-            return;
-        }
-        if (StringUtils.isNotBlank(supplier.logoPath)) {
-            merchant.logoPath = supplier.logoPath;
-        }
-        merchant.weixinAppId = supplier.weixinAppId;
-        merchant.weixinAppSecret = supplier.weixinAppSecret;
-        merchant.linkId = supplier.linkId;
-        merchant.contactName = supplier.contactName;
-        merchant.fullName = supplier.fullName;
-        merchant.remark = supplier.remark;
-        merchant.mobile = supplier.mobile;
-        merchant.phone = supplier.phone;
-        merchant.updatedAt = new Date();
-        merchant.longitude = supplier.longitude;
-        merchant.latitude = supplier.latitude;
+    public static void update(Long id, Merchant newObject) {
+        Merchant merchant=Merchant.findById(id);
+        BeanCopy.beans(newObject, merchant).ignoreNulls(true).copy();
         merchant.save();
+    }
+
+    public static void delete(Long id){
+        Merchant merchant=Merchant.findById(id);
+        Logger.info("merchant id : %s==" + merchant.id);
+        if (merchant != null){
+            merchant.deleted=DeletedStatus.DELETED;
+            merchant.save();
+        }
     }
 
 
@@ -214,9 +215,11 @@ public class Merchant extends Model {
                 .append("/~ and t.id = {id} ~/")
                 .append("/~ and t.fullName = {fullName} ~/")
                 .append("/~ and t.shortName = {shortName} ~/")
+                .append("/~ and t.fullName like {searchName} ~/")
                 .append("/~ and t.phone = {phone} ~/")
                 .append("/~ and t.contactName = {contactName} ~/")
                 .append("/~ and t.mobile = {mobile} ~/")
+                .append("/~ and t.deleted = {deleted} ~/")
                 .append("/~ and t.status = {status} ~/");
         XsqlBuilder.XsqlFilterResult result = new XsqlBuilder().generateHql(
                 xsqlBuilder.toString(), conditionMap);
@@ -243,6 +246,7 @@ public class Merchant extends Model {
                 return Merchant.find("linkId=? order by id", linkId).first();
             }
         });
+
     }
 
     /**
@@ -257,4 +261,9 @@ public class Merchant extends Model {
                 */
         return this.status == MerchantStatus.OPEN;
     }
+    public static Merchant findByName(String name) {
+        return Merchant.find("fullName = ?",name).first();
+    }
+
+
 }
